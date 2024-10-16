@@ -1,0 +1,232 @@
+import random 
+
+# setting up the entire game in a loop; this is if the user would like to play again
+game = True
+while game == True:
+    # created categories
+    category = ["MOVIE", "FOOD", "SHOW", "CITY", "SINGER"]
+    # created words in each category
+    movie = ["HOME ALONE", "SCOOBY DOO", "CORALINE", "HIGH SCHOOL MUSICAL", "LA LA LAND"]
+    food = ["ICE CREAM", "APPLE", "SWEET POTATO", "COTTAGE CHEESE", "CAESER SALAD"]
+    show = ["GOSSIP GIRL", "MONEY HEIST", "OUTER BANKS", "NEW AMSETERDAM", "CRIMINAL MINDS"]
+    city = ["NEW YORK", "LOS ANGELES", "BUENOS AIRES", "CAPE TOWN", "HONG KONG"]
+    singer = ["TAYLOR SWIFT", "BRUNO MARS", "SHAWN MENDAS", "ED SHEERAN", "PHOEBE BRIDGERS"]
+
+    # generating a random category and random word depending on the category
+    randomindex = random.randint(0, 4)
+    randomcategory = category[randomindex]
+    randomword = random.randint(0, 4)
+
+    print(f'{"CATEGORY:":<25}{randomcategory}')
+    if randomcategory == "MOVIE":
+        word = movie[randomword] 
+    elif randomcategory == "FOOD":
+        word = food[randomword]
+    elif randomcategory == "SHOW":
+        word = show[randomword]
+    elif randomcategory == "CITY":
+        word = city[randomword]
+    elif randomcategory == "SINGER":
+        word = singer[randomword]
+
+    listofdashes = ["-"] * len(word)
+
+    # hiding the word - so the user can guess it
+    print(f'{"SECRET WORD:":<25}', end="")
+    for dash in listofdashes:
+        for index in range(len(word)):
+            if word[index] == " ":
+                listofdashes[index] = " "
+        print(dash, end="")
+
+    # setting up the variables that input will get added to
+    money = 0
+    letters = []
+
+    # ongoinggame is for the current round being played, therefore when the round is done the user will be asked if they want to ply again making this repeat if the answer is yes
+    ongoinggame = True
+    while ongoinggame == True:
+        valid = False
+        while valid == False:
+            # ensuring that the user is entering a valid selection
+            try:
+                print("\n")
+                print("1 - Spin the Wheel")
+                print("2 - Buy a Vowel")
+                print("3 - Solve the Word")
+                # asking the user for their selection and ensuring that they only put a number that is between 1-4
+                selection = int(input(f'\n{"Enter your selection:":<25}'))
+                if selection >= 1 and selection <= 3:
+                    valid = True
+                else:
+                    print("\nInvalid selection! Please enter a number between 1 and 3!")
+                    valid = False
+                # if the user chooses 2 but can't afford it this message will appear
+                if selection == 2:
+                    if money < 250:
+                        print("\nYou don't have enough money to buy a vowel.")
+                        valid = False
+
+            except ValueError:
+                print("\nInvalid input! Please enter a number!")
+                valid = False
+        print("_"*50)
+
+        if selection == 1:
+            round = True
+            while round == True:
+                # setting the possible choices for the spin outcome
+                spinoutcome = ("BANKRUPT", 150, 200, 250, 300, 400, 450, 500, 600, 700, 750, 800, 900, 1000)
+                # making sure that the spin is random
+                spinrange = random.randint(0, 13)
+                randomspin = spinoutcome[spinrange]
+                
+                # printing the value the user landed on - if they got "BANKRUPT" they loose all their money and continue
+                if randomspin == "BANKRUPT":
+                    print(f'\n{"You landed on "}{randomspin}{" You lose all your money."}')
+                    money = 0
+                    print("_"*50)
+                    print(f'\n{"CATEGORY:":<25}{randomcategory}')
+                    print(f'{"SECRET WORD:":<25}', end="")
+                    for dash in listofdashes:
+                        print(dash, end="")
+                    round = False
+                    ongoinggame = True
+
+                # if they didn't land on bankrupt, then they have to guess a letter
+                else:
+                    print(f'\n{"You landed on "}{randomspin}{"!"}')
+
+                    valid = False
+                    while valid == False:
+                        letter = input(f'\n{"Enter a letter:":<20s}'). upper()
+                        # ensuring the letter is valid
+                        check = letter.isalpha()
+                        if letter == "A" or letter == "E" or letter == "I" or letter == "O" or letter == "U":
+                            print("\nYou must enter a consonant! Please try again...")
+                            valid = False
+                        elif letter in letters:
+                            print(f'\n{"The letter "}{letter}{" has already been used! Please try again..."}')
+                            valid = False
+                        elif letter == " " or letter == "":
+                            print("\nNo spaces allowed...")
+                        elif check == False:
+                            print("\nOnly letters allowed...")
+                            valid = False
+                        elif len(letter) > 1:
+                            print("\nInvalid guess! You must enter a single character")
+                            valid = False
+                        else:
+                            valid = True
+
+                    # adding the letter to the list 'letters'
+                    letters.append(letter)
+
+                    # countinhg the number of times a letter comes in the word
+                    lettercount = word.count(letter, 0, len(word))
+
+                    # if the letter comes to calculate the amount earned equations have been set up:
+                    # we also have to add to the money variable to ensure that the round money is being added to the total amount of money
+                    roundmoney = lettercount * randomspin
+                    money += roundmoney
+
+                    # different print statements depending on how many letters were found in the word
+                    if lettercount == 1:
+                        print(f'\n{"There is "}{lettercount} {letter}{". You win $"}{roundmoney}{"! "}\n{"You have "}{money}!')
+                    elif lettercount > 1:
+                        print(f'\n{"There are "}{lettercount} {letter}s{". You win $"}{roundmoney}{"! "}\n{"You have "}{money}!')
+                    if lettercount == 0:
+                        print(f'\n{"Sorry...the letter "}{letter}{" is not in the word!"}\n{"You have $"}{money}!')
+                    print("_"*50)
+                    
+                    # reprint the updated word - fill in the dashes if the letter was found
+                    print(f'\n{"CATEGORY:":<25}{randomcategory}')
+                    print(f'{"SECRET WORD:":<25}', end="")
+                    for index in range(len(word)):
+                        if word[index] == letter:
+                            listofdashes[index] = letter
+                    for dash in listofdashes:
+                        print(dash, end="")
+                    # set the round money to 0 for the next round to take place
+                    roundmoney = 0
+                    round = False
+                    ongoinggame = True
+
+        if selection == 2:
+            round = True
+            while round == True:
+                valid = False
+                while valid == False:
+                    letter = input(f'\n{"Enter a vowel:":<20s}').upper()
+                    # ensures that the user is entering a valid answer
+                    check = letter.isalpha()
+                    if len(letter) > 1:
+                        print("\nInvalid guess! You must enter a single character")
+                        valid = False
+                    elif letter in letters:
+                        print(f'\n{"The letter "}{letter}{" has already been used! Please try again..."}')
+                        valid = False
+                    elif letter == " " or letter == "":
+                        print("\nNo spaces allowed...")
+                    elif check == False:
+                        print("\nOnly letters allowed...")
+                        valid = False
+                    elif letter == "A" or letter == "E" or letter == "I" or letter == "O" or letter == "U":
+                        valid = True
+                    else:
+                        print("\nYou must enter a vowel! Please try again...")
+                        valid = False
+                
+                # adding the vowel into the letters list
+                letters.append(letter)
+
+                # counting the number of times the letter appeared in the word
+                lettercount = word.count(letter, 0, len(word))
+
+                # because the user chose to enter a vowel the user has to pay $250
+                money -= 250
+
+                # different print statements depending on how many letters were found in the word
+                if lettercount == 1:
+                    print(f'\n{"There is "}{lettercount} {letter}{". That cost you $250!"}\n{"You have $"}{money}!')
+                elif lettercount > 1:
+                    print(f'\n{"There are "}{lettercount} {letter}{". That cost you $250!"}\n{"You have $"}{money}!')
+                if lettercount == 0:
+                    print(f'\n{"Sorry...the vowel "}{letter}{" is not in the word!"}\n{"You have $"}{money}!')
+                print("_"*50)
+                
+                # reprint the updated word - fill in the dashes if the letter was found
+                print(f'\n{"CATEGORY:":<25}{randomcategory}')
+                print(f'{"SECRET WORD:":<25}', end="")
+                for index in range(len(word)):
+                    if word[index] == letter:
+                        listofdashes[index] = letter
+                for dash in listofdashes:
+                    print(dash, end="")
+                # ending this round so the user can make their next decision
+                round = False
+                ongoinggame = True
+
+        if selection == 3:
+            # prompting user to engter the word
+            secretword = input(f'\n{"Enter the secret word:":<25}') .upper()
+            
+            # if the user gets the word correct the computer would print:
+            if secretword == word:
+                print(f'\n{"Congratulations..."}{secretword}{" is correct!"}\nYou\'re going home with ${money}!')
+            # if the user gets the word wrong the computer would print:
+            else:
+                print(f'\n{"Sorry..."}{secretword}{" is incorrect!"}\nThe secret word was {word}.')
+
+            # user is asked if they would like to play again if they say yes then all the variables are reset to equal 0, if the user enters no then the game stops
+            repeat = input(f'\n{"Would you like to play again (Y or N)?":<45}'). upper()
+            if repeat == "Y":
+                print("_"*50)
+                ongoinggame = False
+                game = True
+                money = 0
+                letters = []
+            else:
+                ongoinggame = False
+                game = False
+print()
